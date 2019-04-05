@@ -1,7 +1,7 @@
 package egts
 
 //код сообщения, что пакет успешно обработано
-const egtsPcOk = uint8(0)
+const EgtsPcOk = uint8(0)
 
 //код сообщения, что пакет в процессе обработки (результат обработки ещё не известен)
 const egtsPcInProgress = uint8(1)

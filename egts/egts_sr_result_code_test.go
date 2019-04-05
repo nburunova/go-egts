@@ -19,7 +19,7 @@ var (
 		HeaderEncoding:   0,
 		FrameDataLength:  11,
 		PacketIdentifier: 14357,
-		PacketType:       egtsPtAppdata,
+		PacketType:       EgtsPtAppdataPkgType,
 		HeaderCheckSum:   17,
 		ServicesFrameData: &ServiceDataSet{
 			ServiceDataRecord{
@@ -32,14 +32,14 @@ var (
 				TimeFieldExists:          "0",
 				EventIDFieldExists:       "0",
 				ObjectIDFieldExists:      "0",
-				SourceServiceType:        egtsAuthService,
-				RecipientServiceType:     egtsAuthService,
+				SourceServiceType:        egtsAuthServicePkgType,
+				RecipientServiceType:     egtsAuthServicePkgType,
 				RecordDataSet: RecordDataSet{
 					RecordData{
-						SubrecordType:   egtsSrResultCode,
+						SubrecordType:   egtsSrResultCodePkgType,
 						SubrecordLength: 1,
 						SubrecordData: &EgtsSrResultCode{
-							ResultCode: egtsPcOk,
+							ResultCode: EgtsPcOk,
 						},
 					},
 				},

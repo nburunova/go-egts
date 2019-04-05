@@ -108,10 +108,10 @@ func (p *EgtsPackage) Decode(content []byte) (uint8, error) {
 		return egtsPcIncDataform, fmt.Errorf("Не считать тело пакета: %v", err)
 	}
 	switch p.PacketType {
-	case egtsPtAppdata:
+	case EgtsPtAppdataPkgType:
 		p.ServicesFrameData = &ServiceDataSet{}
 		break
-	case egtsPtResponse:
+	case EgtsPtResponsePkgType:
 		p.ServicesFrameData = &EgtsPtResponse{}
 		break
 	default:
@@ -131,7 +131,7 @@ func (p *EgtsPackage) Decode(content []byte) (uint8, error) {
 	if p.ServicesFrameDataCheckSum != crc16(content[p.HeaderLength:uint16(p.HeaderLength)+p.FrameDataLength]) {
 		return egtsPcHeadercrcError, fmt.Errorf("Не верная сумма тела пакета")
 	}
-	return egtsPcOk, err
+	return EgtsPcOk, err
 }
 
 // Encode кодирует струткуру в байтовую строку
@@ -252,7 +252,7 @@ func (p *EgtsPackage) CreatePtResponse(resultCode, serviceType uint8, srResponse
 		HeaderEncoding:    0,
 		FrameDataLength:   respSection.Length(),
 		PacketIdentifier:  getNextPid(),
-		PacketType:        egtsPtResponse,
+		PacketType:        EgtsPtResponsePkgType,
 		ServicesFrameData: &respSection,
 	}
 
@@ -262,7 +262,7 @@ func (p *EgtsPackage) CreatePtResponse(resultCode, serviceType uint8, srResponse
 func (p *EgtsPackage) CreateSrResultCode(resultCode uint8) ([]byte, error) {
 	rds := RecordDataSet{
 		RecordData{
-			SubrecordType:   egtsSrResultCode,
+			SubrecordType:   egtsSrResultCodePkgType,
 			SubrecordLength: uint16(1),
 			SubrecordData: &EgtsSrResultCode{
 				ResultCode: resultCode,
@@ -281,8 +281,8 @@ func (p *EgtsPackage) CreateSrResultCode(resultCode uint8) ([]byte, error) {
 			TimeFieldExists:          "0",
 			EventIDFieldExists:       "0",
 			ObjectIDFieldExists:      "0",
-			SourceServiceType:        egtsAuthService,
-			RecipientServiceType:     egtsAuthService,
+			SourceServiceType:        egtsAuthServicePkgType,
+			RecipientServiceType:     egtsAuthServicePkgType,
 			RecordDataSet:            rds,
 		},
 	}
@@ -299,7 +299,7 @@ func (p *EgtsPackage) CreateSrResultCode(resultCode uint8) ([]byte, error) {
 		HeaderEncoding:    0,
 		FrameDataLength:   sfd.Length(),
 		PacketIdentifier:  getNextPid(),
-		PacketType:        egtsPtAppdata,
+		PacketType:        EgtsPtAppdataPkgType,
 		ServicesFrameData: &sfd,
 	}
 

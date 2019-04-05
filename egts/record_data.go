@@ -35,27 +35,27 @@ func (rds *RecordDataSet) Decode(recDS []byte) error {
 		subRecordBytes := buf.Next(int(rd.SubrecordLength))
 
 		switch rd.SubrecordType {
-		case egtsSrPosData:
+		case egtsSrPosDataPkgType:
 			rd.SubrecordData = &EgtsSrPosData{}
-		case egtsSrTermIdentity:
+		case egtsSrTermIdentityPkgType:
 			rd.SubrecordData = &EgtsSrTermIdentity{}
-		case egtsSrRecordResponse:
+		case EgtsSrRecordResponsePkgType:
 			rd.SubrecordData = &EgtsSrResponse{}
-		case egtsSrResultCode:
+		case egtsSrResultCodePkgType:
 			rd.SubrecordData = &EgtsSrResultCode{}
-		case egtsSrExtPosData:
+		case egtsSrExtPosDataPkgType:
 			rd.SubrecordData = &EgtsSrExtPosData{}
-		case egtsSrAdSensorsData:
+		case egtsSrAdSensorsDataPkgType:
 			rd.SubrecordData = &EgtsSrAdSensorsData{}
-		case egtsSrStateData:
+		case egtsSrStateDataPkgType:
 			rd.SubrecordData = &EgtsSrStateData{}
-		case egtsSrLiquidLevelSensor:
+		case egtsSrLiquidLevelSensorPkgType:
 			rd.SubrecordData = &EgtsSrLiquidLevelSensor{}
-		case egtsSrAbsCntrData:
+		case egtsSrAbsCntrDataPkgType:
 			rd.SubrecordData = &EgtsSrAbsCntrData{}
-		case egtsSrAuthInfo:
+		case egtsSrAuthInfoPkgType:
 			rd.SubrecordData = &EgtsSrAuthInfo{}
-		case egtsSrDispatcherIdentity:
+		case egtsSrDispatcherIdentityPkgType:
 			rd.SubrecordData = &EgtsSrDispatcherIdentity{}
 		default:
 			return fmt.Errorf("Не известный пакета: %d", rd.SubrecordType)

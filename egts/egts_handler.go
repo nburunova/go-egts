@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 )
 
-func ParsePacket(buf []byte) ([]byte, error) {
+func ParsePacket(buf []byte) (EgtsPackage, []byte, error) {
 	var (
 		srResultCodePkg   []byte
 		serviceType       uint8
@@ -16,7 +16,7 @@ func ParsePacket(buf []byte) ([]byte, error) {
 	resultCode, err := pkg.Decode(buf[:pkgLen])
 
 	switch pkg.PacketType {
-	case egtsPtAppdata:
+	case EgtsPtAppdataPkgType:
 		//logger.Info("Тип пакета EGTS_PT_APPDATA")
 
 		for _, rec := range *pkg.ServicesFrameData.(*ServiceDataSet) {
@@ -26,11 +26,11 @@ func ParsePacket(buf []byte) ([]byte, error) {
 			packetIdBytes := make([]byte, 4)
 
 			srResponsesRecord = append(srResponsesRecord, RecordData{
-				SubrecordType:   egtsSrRecordResponse,
+				SubrecordType:   EgtsSrRecordResponsePkgType,
 				SubrecordLength: 3,
 				SubrecordData: &EgtsSrResponse{
 					ConfirmedRecordNumber: rec.RecordNumber,
-					RecordStatus:          egtsPcOk,
+					RecordStatus:          EgtsPcOk,
 				},
 			})
 			serviceType = rec.SourceServiceType
@@ -42,12 +42,12 @@ func ParsePacket(buf []byte) ([]byte, error) {
 				switch subRecData := subRec.SubrecordData.(type) {
 				case *EgtsSrTermIdentity:
 					//logger.Debugf("Разбор подзаписи EGTS_SR_TERM_IDENTITY")
-					if srResultCodePkg, err = pkg.CreateSrResultCode(egtsPcOk); err != nil {
+					if srResultCodePkg, err = pkg.CreateSrResultCode(EgtsPcOk); err != nil {
 						//logger.Errorf("Ошибка сборки EGTS_SR_RESULT_CODE: %v", err)
 					}
 				case *EgtsSrAuthInfo:
 					//logger.Debugf("Разбор подзаписи EGTS_SR_AUTH_INFO")
-					if srResultCodePkg, err = pkg.CreateSrResultCode(egtsPcOk); err != nil {
+					if srResultCodePkg, err = pkg.CreateSrResultCode(EgtsPcOk); err != nil {
 						//logger.Errorf("Ошибка сборки EGTS_SR_RESULT_CODE: %v", err)
 					}
 				case *EgtsSrPosData:
@@ -124,9 +124,9 @@ func ParsePacket(buf []byte) ([]byte, error) {
 			//logger.Debugf("Отправлен пакет EGTS_SR_RESULT_CODE: %X", resp)
 			//logger.Debug(printDecodePackage(srResultCodePkg))
 		}
-		return resp, err
-		// case egtsPtResponse:
+		return pkg, resp, err
+		// case EgtsPtResponsePkgType:
 		// 	logger.Printf("Тип пакета EGTS_PT_RESPONSE")
 	}
-	return make([]byte, 0), err
+	return pkg, make([]byte, 0), err
 }
