@@ -17,6 +17,7 @@ const egtsSrAbsCntrData = 25
 const egtsSrAbsLoopinData = 26
 const egtsSrLiquidLevelSensor = 27
 const egtsSrPassengersCounters = 28
+const egtsSrDispatcherIdentity = 5
 
 const egtsPtAppdata = 1
 const egtsPtResponse = 0

@@ -2,25 +2,19 @@ package main
 
 import (
 	"encoding/binary"
-	"io"
 	"net"
-	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
-func handleRecvPkg(conn net.Conn, store Connector) {
+func handleRecvPkg(conn net.Conn, logger *logrus.Logger) {
 	var (
-		isPkgSave         bool
 		srResultCodePkg   []byte
 		serviceType       uint8
 		srResponsesRecord RecordDataSet
 	)
 	buf := make([]byte, 1024)
 
-	if store == nil {
-		logger.Errorf("Не корректная ссылка на объект хранилища")
-		conn.Close()
-		return
-	}
 	logger.Warnf("Установлено соединение с %s", conn.RemoteAddr())
 
 	for {
@@ -30,23 +24,6 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 		srResultCodePkg = nil
 
 		pkgLen, err := conn.Read(buf)
-
-		connTimer := time.NewTimer(config.Srv.getEmptyConnTTL())
-		switch err {
-		case nil:
-			connTimer.Reset(config.Srv.getEmptyConnTTL())
-			logger.Debugf("Принят пакет: %X\v", buf[:pkgLen])
-			break
-		case io.EOF:
-			<-connTimer.C
-			conn.Close()
-			logger.Warnf("Соединение %s закрыто по таймауту", conn.RemoteAddr())
-			return
-		default:
-			logger.Errorf("Ошибка при получении:", err)
-			conn.Close()
-			return
-		}
 
 		logger.Debugf("Принят пакет: %X\v", buf)
 		//printDecodePackage(buf)
@@ -75,8 +52,6 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 				exportPacket := EgtsParsePacket{
 					PacketID: uint32(pkg.PacketIdentifier),
 				}
-
-				isPkgSave = false
 				packetIdBytes := make([]byte, 4)
 
 				srResponsesRecord = append(srResponsesRecord, RecordData{
@@ -109,7 +84,6 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 						goto Received
 					case *EgtsSrPosData:
 						logger.Debugf("Разбор подзаписи EGTS_SR_POS_DATA")
-						isPkgSave = true
 
 						exportPacket.NavigationTime = subRecData.NavigationTime
 						exportPacket.Latitude = subRecData.Latitude
@@ -169,12 +143,6 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 						}
 
 						exportPacket.LiquidSensors = append(exportPacket.LiquidSensors, sensorData)
-					}
-				}
-
-				if isPkgSave {
-					if err := store.Save(&exportPacket); err != nil {
-						logger.Error(err)
 					}
 				}
 			}
