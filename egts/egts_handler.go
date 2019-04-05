@@ -2,11 +2,9 @@ package egts
 
 import (
 	"encoding/binary"
-
-	"github.com/sirupsen/logrus"
 )
 
-func ParsePacket(buf []byte, logger *logrus.Logger) ([]byte, error) {
+func ParsePacket(buf []byte) ([]byte, error) {
 	var (
 		srResultCodePkg   []byte
 		serviceType       uint8
@@ -19,7 +17,7 @@ func ParsePacket(buf []byte, logger *logrus.Logger) ([]byte, error) {
 
 	switch pkg.PacketType {
 	case egtsPtAppdata:
-		logger.Info("Тип пакета EGTS_PT_APPDATA")
+		//logger.Info("Тип пакета EGTS_PT_APPDATA")
 
 		for _, rec := range *pkg.ServicesFrameData.(*ServiceDataSet) {
 			exportPacket := EgtsParsePacket{
@@ -36,24 +34,24 @@ func ParsePacket(buf []byte, logger *logrus.Logger) ([]byte, error) {
 				},
 			})
 			serviceType = rec.SourceServiceType
-			logger.Info("Тип сервиса ", serviceType)
+			//logger.Info("Тип сервиса ", serviceType)
 
 			exportPacket.Client = rec.ObjectIdentifier
 
 			for _, subRec := range rec.RecordDataSet {
 				switch subRecData := subRec.SubrecordData.(type) {
 				case *EgtsSrTermIdentity:
-					logger.Debugf("Разбор подзаписи EGTS_SR_TERM_IDENTITY")
+					//logger.Debugf("Разбор подзаписи EGTS_SR_TERM_IDENTITY")
 					if srResultCodePkg, err = pkg.CreateSrResultCode(egtsPcOk); err != nil {
-						logger.Errorf("Ошибка сборки EGTS_SR_RESULT_CODE: %v", err)
+						//logger.Errorf("Ошибка сборки EGTS_SR_RESULT_CODE: %v", err)
 					}
 				case *EgtsSrAuthInfo:
-					logger.Debugf("Разбор подзаписи EGTS_SR_AUTH_INFO")
+					//logger.Debugf("Разбор подзаписи EGTS_SR_AUTH_INFO")
 					if srResultCodePkg, err = pkg.CreateSrResultCode(egtsPcOk); err != nil {
-						logger.Errorf("Ошибка сборки EGTS_SR_RESULT_CODE: %v", err)
+						//logger.Errorf("Ошибка сборки EGTS_SR_RESULT_CODE: %v", err)
 					}
 				case *EgtsSrPosData:
-					logger.Debugf("Разбор подзаписи EGTS_SR_POS_DATA")
+					//logger.Debugf("Разбор подзаписи EGTS_SR_POS_DATA")
 
 					exportPacket.NavigationTime = subRecData.NavigationTime
 					exportPacket.Latitude = subRecData.Latitude
@@ -61,12 +59,12 @@ func ParsePacket(buf []byte, logger *logrus.Logger) ([]byte, error) {
 					exportPacket.Speed = subRecData.Speed
 					exportPacket.Course = subRecData.Direction
 				case *EgtsSrExtPosData:
-					logger.Debugf("Разбор подзаписи EGTS_SR_EXT_POS_DATA")
+					//logger.Debugf("Разбор подзаписи EGTS_SR_EXT_POS_DATA")
 					exportPacket.Nsat = subRecData.Satellites
 					exportPacket.Pdop = subRecData.PositionDilutionOfPrecision
 
 				case *EgtsSrAdSensorsData:
-					logger.Debugf("Разбор подзаписи EGTS_SR_AD_SENSORS_DATA")
+					//logger.Debugf("Разбор подзаписи EGTS_SR_AD_SENSORS_DATA")
 
 					exportPacket.AnSensors = make(map[uint8]uint32)
 					exportPacket.AnSensors[1] = subRecData.AnalogSensor1
@@ -78,7 +76,7 @@ func ParsePacket(buf []byte, logger *logrus.Logger) ([]byte, error) {
 					exportPacket.AnSensors[7] = subRecData.AnalogSensor7
 					exportPacket.AnSensors[8] = subRecData.AnalogSensor8
 				case *EgtsSrAbsCntrData:
-					logger.Debugf("Разбор подзаписи EGTS_SR_ABS_CNTR_DATA")
+					//logger.Debugf("Разбор подзаписи EGTS_SR_ABS_CNTR_DATA")
 
 					switch subRecData.CounterNumber {
 					case 110:
@@ -99,7 +97,7 @@ func ParsePacket(buf []byte, logger *logrus.Logger) ([]byte, error) {
 						exportPacket.PacketID = binary.LittleEndian.Uint32(packetIdBytes)
 					}
 				case *EgtsSrLiquidLevelSensor:
-					logger.Debugf("Разбор подзаписи EGTS_SR_LIQUID_LEVEL_SENSOR")
+					//logger.Debugf("Разбор подзаписи EGTS_SR_LIQUID_LEVEL_SENSOR")
 					sensorData := LiquidSensor{
 						SensorNumber: subRecData.LiquidLevelSensorNumber,
 						ErrorFlag:    subRecData.LiquidLevelSensorErrorFlag,
@@ -119,11 +117,11 @@ func ParsePacket(buf []byte, logger *logrus.Logger) ([]byte, error) {
 
 		resp, err := pkg.CreatePtResponse(resultCode, serviceType, srResponsesRecord)
 
-		logger.Debugf("Отправлен пакет EGTS_PT_RESPONSE: %X", resp)
+		//logger.Debugf("Отправлен пакет EGTS_PT_RESPONSE: %X", resp)
 		//logger.Debug(printDecodePackage(resp))
 
 		if len(srResultCodePkg) > 0 {
-			logger.Debugf("Отправлен пакет EGTS_SR_RESULT_CODE: %X", resp)
+			//logger.Debugf("Отправлен пакет EGTS_SR_RESULT_CODE: %X", resp)
 			//logger.Debug(printDecodePackage(srResultCodePkg))
 		}
 		return resp, err

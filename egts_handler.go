@@ -22,7 +22,7 @@ func handleRecvPkg(conn net.Conn, logger *logrus.Logger) {
 		logger.Debugf("Принят пакет: %X\v", buf)
 		//printDecodePackage(buf)
 
-		resp, err := egts.ParsePacket(buf, logger)
+		resp, err := egts.ParsePacket(buf)
 
 		conn.Write(resp)
 
