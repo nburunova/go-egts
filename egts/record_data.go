@@ -8,7 +8,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-var ErrUnknownPkgType = errors.New("Не известный пакета")
+var ErrUnknownPkgType = errors.New("Не известный тип пакета")
 
 type RecordData struct {
 	SubrecordType   byte       `json:"SRT"`
@@ -61,6 +61,8 @@ func (rds *RecordDataSet) Decode(recDS []byte) error {
 			rd.SubrecordData = &EgtsSrAuthInfo{}
 		case egtsSrDispatcherIdentityPkgType:
 			rd.SubrecordData = &EgtsSrDispatcherIdentity{}
+		case egtsSrAbsAnSensDataPkgType:
+			rd.SubrecordData = &EgtsSrAbsAnSensData{}
 		default:
 			return errors.Wrapf(ErrUnknownPkgType, "%d", rd.SubrecordType)
 		}
