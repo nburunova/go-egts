@@ -63,6 +63,8 @@ func (rds *RecordDataSet) Decode(recDS []byte) error {
 			rd.SubrecordData = &EgtsSrDispatcherIdentity{}
 		case egtsSrAbsAnSensDataPkgType:
 			rd.SubrecordData = &EgtsSrAbsAnSensData{}
+		case egtsSrCountersDataPkgType:
+			rd.SubrecordData = &EgtsSrCntrsData{}
 		default:
 			return errors.Wrapf(ErrUnknownPkgType, "%d", rd.SubrecordType)
 		}
