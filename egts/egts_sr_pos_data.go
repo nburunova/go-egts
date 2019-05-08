@@ -40,7 +40,7 @@ func (e *EgtsSrPosData) Decode(content []byte) error {
 	buf := bytes.NewReader(content)
 
 	// Преобразуем время навигации к формату, который требует стандарт: количество секунд с 00:00:00 01.01.2010 UTC
-	startDate := time.Date(2010, time.January, 0, 0, 0, 0, 0, time.UTC)
+	startDate := time.Date(2010, time.January, 1, 0, 0, 0, 0, time.UTC)
 	tmpUint32Buf := make([]byte, 4)
 	if _, err = buf.Read(tmpUint32Buf); err != nil {
 		return fmt.Errorf("Не удалось получить время навигации: %v", err)
